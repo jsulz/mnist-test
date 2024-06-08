@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "mnist-streamlit"
+version = "0.1.0"
+description = "A small Streamlit project demoing a Keras-backed neural network trained on the MNIST dataset."
+authors = ["jsulz <j.sulzdorf@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+streamlit = "^1.35.0"
+keras = "^3.3.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
