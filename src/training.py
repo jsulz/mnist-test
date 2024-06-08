@@ -31,4 +31,4 @@ model.compile(
 history = model.fit(x_train, y_train, epochs=35, validation_data=(x_valid, y_valid))
 
 # save the model
-model.save("../artifacts/mnist_model_test.keras")
+model.save("../models/mnist_model.keras")
