@@ -5,9 +5,7 @@ A small Streamlit app that loads a Keras model trained on the MNIST dataset and 
 import streamlit as st
 from PIL import Image
 from streamlit_drawable_canvas import st_canvas
-import base64
 import os
-from io import BytesIO
 import numpy as np
 from keras import models
 import pandas as pd
@@ -63,4 +61,5 @@ if canvas_result is not None and canvas_result.image_data is not None:
         # print the prediction
         print(f"prediction : {float(np.argmax(prediction))}")
 
+    # create a bar chart to show the predictions
     st.bar_chart(pd.DataFrame(np.ravel(prediction)))
