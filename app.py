@@ -28,7 +28,6 @@ def load_picture():
         plt.imshow(image, cmap=plt.get_cmap("gray"))
 
     # Save the plot as a png file and show it in streamlit
-    plt.savefig("img/show.png")
     st.image("img/show.png", width=250, caption="First 9 images from the MNIST dataset")
 
 
