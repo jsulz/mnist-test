@@ -11,6 +11,7 @@ from keras import models
 import keras.datasets.mnist as mnist
 import matplotlib.pyplot as plt
 import pandas as pd
+import time
 
 
 @st.cache_resource
@@ -40,10 +41,18 @@ def main():
     # write the title of the page as MNIST Digit Recognizer
     st.title("MNIST Digit Recognizer")
 
-    col1, col2 = st.columns([0.7, 0.3], gap="small")
+    col1, col2 = st.columns([0.8, 0.2], gap="small")
     with col1:
         st.markdown(
-            "This Streamlit app loads a small Keras neural network trained on the MNIST dataset to predict handwritten digits. Draw a digit in the canvas below, see the model's prediction, along with the probability distribution of the predictions. Additionally, you can change the stroke width of the digit you draw using the slider adjacent to the canvas. Like any machine learning model, this model is a function of the data it was fed during training. As you can see in the picture to the right, the numbers in the images have a specific format (location and size). By playing around with the stroke width and where you draw the digit, you can see how the model's prediction changes."
+            """
+            This Streamlit app loads a Keras neural network trained on the MNIST dataset to predict handwritten digits. Draw a digit in the canvas below and see the model's prediction. You can: 
+            - Change the stroke width of the digit using the slider
+            - Choose what model you use for predictions
+                - Autokeras: A model generated using the <a href="https://autokeras.com/image_classifier/">Autokeras image classifier class</a>
+                - Basic: A simple two layer nueral net where each layer has 300 nodes
+            
+            Like any machine learning model, this model is a function of the data it was fed during training. As you can see in the picture, the numbers in the images have a specific shape, location, and size. By playing around with the stroke width and where you draw the digit, you can see how the model's prediction changes.""",
+            unsafe_allow_html=True,
         )
     with col2:
         # Load the first 9 images from the MNIST dataset and show them
@@ -55,6 +64,16 @@ def main():
         # Stroke width slider to change the width of the canvas stroke
         # Starts at 10 because that's reasonably close to the width of the MNIST digits
         stroke_width = st.slider("Stroke width: ", 1, 25, 10)
+        model_choice = st.selectbox(
+            "Choose what model to use for predictions:", ("Autokeras", "Basic")
+        )
+        if "Basic" in model_choice:
+            model_path = "models/mnist_model.keras"
+
+        if "Auto" in model_choice:
+            model_path = "models/autokeras_model.keras"
+
+        print(model_path)
 
     with col3:
         # Create a canvas component
@@ -65,8 +84,8 @@ def main():
             background_color="#000",
             background_image=None,
             update_streamlit=True,
-            height=150,
-            width=150,
+            height=200,
+            width=200,
             drawing_mode="freedraw",
             point_display_radius=0,
             key="canvas",
@@ -84,26 +103,35 @@ def main():
 
         # load the mnist_model from the artifacts directory
         model = models.load_model(
-            os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "models/mnist_model.keras")
-            )
+            os.path.abspath(os.path.join(os.path.dirname(__file__), model_path))
         )
 
         # if final is not all zeros, run the prediction
         if not np.all(final == 0):
+            curr_time = time.time()
             # make a prediction using the test data
             prediction = model.predict(final[None, ...])
+            after_time = time.time()
 
             # print the prediction
-            st.header(f"Prediction: {np.argmax(prediction)}")
+            st.header(f"Using model: {model_choice}")
+            st.write(f"Prediction: {np.argmax(prediction)}")
+            st.write(f"Prediction time (in ms): {(after_time - curr_time) * 1000:.2f}")
 
             # Create a 2 column dataframe with one column as the digits and the other as the probability
             data = pd.DataFrame(
                 {"Digit": list(range(10)), "Probability": np.ravel(prediction)}
             )
 
+            col1, col2 = st.columns([0.8, 0.2], gap="small")
             # create a bar chart to show the predictions
-            st.bar_chart(data, x="Digit", y="Probability")
+            with col1:
+                st.bar_chart(data, x="Digit", y="Probability", height=500)
+
+            # show the probability distribution numerically
+            with col2:
+                data["Probability"] = data["Probability"].apply(lambda x: f"{x:.2%}")
+                st.dataframe(data, hide_index=True)
 
 
 if __name__ == "__main__":
