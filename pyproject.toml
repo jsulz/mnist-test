@@ -16,7 +16,7 @@ numpy = "^1.26.4"
 matplotlib = "^3.9.0"
 onnx = "^1.16.1"
 onnxruntime = "^1.18.1"
-scipy = "^1.14.0"
+scipy = "1.13.0"
 
 
 [build-system]
